@@ -742,6 +742,247 @@
 
     .chat-send:hover { opacity: 0.85; }
     .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ═══════════════════════════════════════
+       SIMULATION TWIN PANEL
+    ═══════════════════════════════════════ */
+    .sim-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.6rem;
+      margin-bottom: 2rem;
+      animation: fadeIn 0.6s ease both;
+    }
+
+    .sim-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap; gap: 0.8rem;
+    }
+
+    .sim-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem; font-weight: 700;
+    }
+
+    .sim-badge {
+      font-size: 0.68rem; padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(0,229,192,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,229,192,0.25);
+    }
+
+    /* Scenario tabs */
+    .sim-tabs {
+      display: flex; gap: 0.5rem;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
+
+    .sim-tab {
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem; font-weight: 500;
+      cursor: pointer;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .sim-tab:hover { color: var(--white); border-color: rgba(255,255,255,0.15); }
+
+    .sim-tab.active {
+      background: rgba(0,229,192,0.1);
+      border-color: rgba(0,229,192,0.35);
+      color: var(--accent);
+    }
+
+    /* Slider section */
+    .sim-control {
+      display: flex; align-items: center; gap: 1.2rem;
+      margin-bottom: 1.4rem;
+      flex-wrap: wrap;
+    }
+
+    .sim-control-label {
+      font-size: 0.82rem; color: var(--muted);
+      white-space: nowrap;
+      min-width: 160px;
+    }
+
+    .sim-slider-wrap { flex: 1; min-width: 160px; }
+
+    .sim-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.1);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .sim-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(0,229,192,0.5);
+      transition: box-shadow 0.2s;
+    }
+
+    .sim-slider::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 14px rgba(0,229,192,0.8);
+    }
+
+    .sim-value-display {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--accent);
+      min-width: 48px; text-align: right;
+    }
+
+    .btn-simulate {
+      padding: 0.6rem 1.4rem;
+      background: linear-gradient(135deg, var(--accent), #00b4d8);
+      border: none; border-radius: 8px;
+      color: var(--navy);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-simulate:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-simulate:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* Results grid */
+    .sim-results {
+      display: none;
+      animation: fadeIn 0.45s ease;
+    }
+
+    .sim-results.visible { display: block; }
+
+    .sim-results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .sim-stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      text-align: center;
+    }
+
+    .sim-stat-label {
+      font-size: 0.68rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+
+    .sim-stat-before {
+      font-size: 0.78rem; color: rgba(255,255,255,0.45);
+      text-decoration: line-through;
+      margin-bottom: 0.2rem;
+    }
+
+    .sim-stat-after {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--accent);
+    }
+
+    .sim-stat-saved {
+      font-size: 0.7rem; color: var(--good);
+      margin-top: 0.3rem;
+      font-weight: 500;
+    }
+
+    /* Score boost bar */
+    .sim-score-row {
+      display: flex; align-items: center; gap: 1rem;
+      background: rgba(0,229,192,0.05);
+      border: 1px solid rgba(0,229,192,0.15);
+      border-radius: 10px;
+      padding: 0.9rem 1.2rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap; gap: 0.6rem;
+    }
+
+    .sim-score-label {
+      font-size: 0.8rem; color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .sim-score-bar-wrap {
+      flex: 1; min-width: 120px;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .sim-score-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #00b4d8);
+      border-radius: 3px;
+      transition: width 0.8s ease;
+      width: 0%;
+    }
+
+    .sim-score-delta {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.9rem; font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* Summary text */
+    .sim-summary {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+      padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.02);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* Trees visual */
+    .sim-trees {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-top: 0.8rem;
+      font-size: 0.78rem; color: var(--good);
+    }
+
+    .sim-trees-icons { letter-spacing: -2px; font-size: 1rem; }
+
+    .sim-loading-indicator {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .sim-results-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .sim-results-grid { grid-template-columns: 1fr 1fr; }
+      .sim-control { flex-direction: column; align-items: stretch; }
+    }
   </style>
 </head>
 <body>
@@ -782,6 +1023,9 @@
     </a>
     <a href="#predict"   class="nav-item">
       <span class="nav-icon">🔮</span> Predictions
+    </a>
+    <a href="#simulate"  class="nav-item">
+      <span class="nav-icon">🧪</span> Simulation Twin
     </a>
 
     <div class="sidebar-bottom">
@@ -950,6 +1194,59 @@
           <canvas id="predictionChart"></canvas>
         </div>
         <p id="predSummary" style="margin-top:0.8rem;font-size:0.82rem;color:var(--muted);padding:0 0.2rem"></p>
+      </div>
+
+      <!-- ══ SIMULATION TWIN ══ -->
+      <p class="section-title" id="simulate" style="margin-top:1.5rem">🧪 Sustainability Twin — Scenario Simulator</p>
+      <div class="sim-panel">
+
+        <div class="sim-header">
+          <div class="sim-title">Predict outcomes before they happen</div>
+          <span class="sim-badge">Digital Twin Engine</span>
+        </div>
+
+        <!-- Scenario Tabs -->
+        <div class="sim-tabs">
+          <button class="sim-tab active" data-scenario="runtime">⚡ Reduce Machine Runtime</button>
+          <button class="sim-tab" data-scenario="renewable">🌞 Switch to Renewable</button>
+          <button class="sim-tab" data-scenario="recycling">♻️ Improve Recycling</button>
+        </div>
+
+        <!-- Slider Control -->
+        <div class="sim-control">
+          <div class="sim-control-label" id="simControlLabel">Runtime reduction %</div>
+          <div class="sim-slider-wrap">
+            <input type="range" class="sim-slider" id="simSlider" min="1" max="100" value="20" />
+          </div>
+          <div class="sim-value-display" id="simValueDisplay">20%</div>
+          <button class="btn-simulate" id="btnRunSim">▶ Run Simulation</button>
+        </div>
+
+        <!-- Loading state -->
+        <div class="sim-loading-indicator" id="simLoading" style="display:none">
+          <span>⏳ Running simulation…</span>
+        </div>
+
+        <!-- Results (hidden until first run) -->
+        <div class="sim-results" id="simResults">
+
+          <!-- 4 stat cards: Before → After -->
+          <div class="sim-results-grid" id="simStatsGrid"></div>
+
+          <!-- Score boost bar -->
+          <div class="sim-score-row">
+            <span class="sim-score-label">🏆 Sustainability Score Improvement</span>
+            <div class="sim-score-bar-wrap">
+              <div class="sim-score-bar-fill" id="simScoreBar"></div>
+            </div>
+            <span class="sim-score-delta" id="simScoreDelta">+0 pts</span>
+          </div>
+
+          <!-- Summary + trees -->
+          <div class="sim-summary" id="simSummaryText"></div>
+          <div class="sim-trees" id="simTrees"></div>
+
+        </div>
       </div>
 
     </div><!-- /content -->

@@ -1,8 +1,6 @@
 date,electricity_usage_kwh,water_usage_liters,waste_generated_kg,department
 2024-01-01,420,1500,85,Production
 2024-01-02,390,1420,78,Production
-2024-01-03,450,1600,92,Logistics
-2024-01-04,410,1380,80,Production
 2024-01-05,380,1300,72,IT
 2024-01-06,500,1700,105,Logistics
 2024-01-07,460,1550,88,Production

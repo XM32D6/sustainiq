@@ -10,6 +10,7 @@ import pandas as pd
 from werkzeug.utils import secure_filename
 from ai_analysis import run_ai_analysis
 from chatbot import ask_chatbot
+from simulation import run_simulation
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -279,6 +280,36 @@ def chat():
         ai_data   = run_ai_analysis(filepath, base_data.get('sustainability_score', 70))
         answer    = ask_chatbot(question, ai_data, base_data, history)
         return jsonify({'answer': answer})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/simulate', methods=['POST'])
+def simulate():
+    """
+    Simulation Twin endpoint.
+    Receives scenario + value, runs simulation engine, returns predicted outcomes.
+
+    Body JSON:
+        { "filename": "...", "scenario": "runtime|renewable|recycling", "value": 20 }
+    """
+    data     = request.get_json()
+    filename = data.get('filename', '')
+    scenario = data.get('scenario', '')
+    value    = data.get('value', 20)
+
+    if not filename:
+        return jsonify({'error': 'No filename provided'}), 400
+    if not scenario:
+        return jsonify({'error': 'No scenario provided'}), 400
+
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filename))
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'File not found'}), 404
+
+    try:
+        result = run_simulation(filepath, scenario, value)
+        return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

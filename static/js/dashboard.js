@@ -684,7 +684,220 @@ function removeMessage(id) {
 }
 
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  SIMULATION TWIN
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SIM_CONFIG = {
+  runtime:   { label: 'Runtime reduction %',     unit: '%' },
+  renewable: { label: 'Renewable energy share %', unit: '%' },
+  recycling: { label: 'Recycling target %',       unit: '%' },
+};
+
+let activeScenario = 'runtime';
+
+function initSimulation() {
+  const tabs        = document.querySelectorAll('.sim-tab');
+  const slider      = document.getElementById('simSlider');
+  const valueDisp   = document.getElementById('simValueDisplay');
+  const controlLbl  = document.getElementById('simControlLabel');
+  const runBtn      = document.getElementById('btnRunSim');
+
+  // ── Tab switching ──────────────────────────────────────────────────────
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeScenario = tab.dataset.scenario;
+      controlLbl.textContent = SIM_CONFIG[activeScenario].label;
+      slider.value = 20;
+      valueDisp.textContent = '20%';
+      // Hide old results when switching scenario
+      document.getElementById('simResults').classList.remove('visible');
+    });
+  });
+
+  // ── Slider live update ─────────────────────────────────────────────────
+  slider.addEventListener('input', () => {
+    valueDisp.textContent = slider.value + '%';
+  });
+
+  // ── Run simulation ─────────────────────────────────────────────────────
+  runBtn.addEventListener('click', runSimulation);
+}
+
+
+async function runSimulation() {
+  const slider  = document.getElementById('simSlider');
+  const runBtn  = document.getElementById('btnRunSim');
+  const loading = document.getElementById('simLoading');
+  const results = document.getElementById('simResults');
+
+  runBtn.disabled = true;
+  loading.style.display = 'block';
+  results.classList.remove('visible');
+
+  try {
+    const res = await fetch('/api/simulate', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: FILENAME,
+        scenario: activeScenario,
+        value:    parseFloat(slider.value),
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      alert('Simulation error: ' + data.error);
+      return;
+    }
+
+    renderSimResults(data);
+    results.classList.add('visible');
+
+  } catch (err) {
+    console.error('Simulation error:', err);
+    alert('Could not run simulation. Make sure Flask is running.');
+  } finally {
+    runBtn.disabled = false;
+    loading.style.display = 'none';
+  }
+}
+
+
+function renderSimResults(d) {
+  const grid      = document.getElementById('simStatsGrid');
+  const scoreBar  = document.getElementById('simScoreBar');
+  const scoreDelta = document.getElementById('simScoreDelta');
+  const summary   = document.getElementById('simSummaryText');
+  const treesEl   = document.getElementById('simTrees');
+
+  // ── Build stat cards based on scenario ───────────────────────────────
+  const stats = buildSimStats(d);
+  grid.innerHTML = stats.map(s => `
+    <div class="sim-stat">
+      <div class="sim-stat-label">${s.label}</div>
+      <div class="sim-stat-before">${s.before}</div>
+      <div class="sim-stat-after">${s.after}</div>
+      ${s.saved ? `<div class="sim-stat-saved">↓ ${s.saved} saved</div>` : ''}
+    </div>
+  `).join('');
+
+  // ── Score boost bar ───────────────────────────────────────────────────
+  const boost = d.score_boost || 0;
+  scoreBar.style.width = Math.min(boost * 4, 100) + '%';
+  scoreDelta.textContent = `+${boost} pts`;
+
+  // ── Summary ───────────────────────────────────────────────────────────
+  summary.textContent = d.summary || '';
+
+  // ── Trees visual ──────────────────────────────────────────────────────
+  const trees = d.savings?.trees_equiv || 0;
+  const treeIcons = '🌳'.repeat(Math.min(trees, 12));
+  treesEl.innerHTML = trees > 0
+    ? `<span class="sim-trees-icons">${treeIcons}</span> Equivalent to planting <strong>${trees}</strong> trees`
+    : '';
+}
+
+
+function buildSimStats(d) {
+  const stats = [];
+  const s = d.savings || {};
+  const before = d.before || {};
+  const after  = d.after  || {};
+
+  if (d.scenario === 'Reduce Machine Runtime') {
+    stats.push({
+      label:  '⚡ Energy (kWh)',
+      before: fmt(before.energy) + ' kWh',
+      after:  fmt(after.energy)  + ' kWh',
+      saved:  fmt(s.energy_kwh)  + ' kWh',
+    });
+    if (before.water > 0) {
+      stats.push({
+        label:  '💧 Water (L)',
+        before: fmt(before.water) + ' L',
+        after:  fmt(after.water)  + ' L',
+        saved:  fmt(s.water_liters) + ' L',
+      });
+    }
+    stats.push({
+      label:  '☁️ CO₂ Saved',
+      before: '—',
+      after:  fmt(s.co2_kg) + ' kg',
+      saved:  null,
+    });
+    stats.push({
+      label:  '🌳 Tree Equiv.',
+      before: '—',
+      after:  s.trees_equiv + ' trees',
+      saved:  null,
+    });
+  }
+
+  else if (d.scenario === 'Switch to Renewable Energy') {
+    stats.push({
+      label:  '⚡ Energy (kWh)',
+      before: fmt(before.energy) + ' kWh',
+      after:  fmt(after.energy)  + ' kWh (green)',
+      saved:  null,
+    });
+    stats.push({
+      label:  '☁️ CO₂ Before',
+      before: fmt(before.co2) + ' kg',
+      after:  fmt(after.co2) + ' kg',
+      saved:  fmt(s.co2_kg) + ' kg',
+    });
+    stats.push({
+      label:  '☁️ CO₂ Saved',
+      before: '—',
+      after:  fmt(s.co2_kg) + ' kg',
+      saved:  null,
+    });
+    stats.push({
+      label:  '🌳 Tree Equiv.',
+      before: '—',
+      after:  s.trees_equiv + ' trees',
+      saved:  null,
+    });
+  }
+
+  else if (d.scenario === 'Improve Recycling Rate') {
+    stats.push({
+      label:  '♻️ Recycled (kg)',
+      before: fmt(before.recycled) + ' kg',
+      after:  fmt(after.recycled)  + ' kg',
+      saved:  null,
+    });
+    stats.push({
+      label:  '🗑️ Landfill (kg)',
+      before: fmt(before.landfill) + ' kg',
+      after:  fmt(after.landfill)  + ' kg',
+      saved:  fmt(s.waste_kg) + ' kg',
+    });
+    stats.push({
+      label:  '☁️ CO₂ Saved',
+      before: '—',
+      after:  fmt(s.co2_kg) + ' kg',
+      saved:  null,
+    });
+    stats.push({
+      label:  '🌳 Tree Equiv.',
+      before: '—',
+      after:  s.trees_equiv + ' trees',
+      saved:  null,
+    });
+  }
+
+  return stats;
+}
+
+
 // ── Kick off ──────────────────────────────────────────────────────────────
 loadDashboard();
 loadAIDashboard();
 initChatbot();
+initSimulation();
