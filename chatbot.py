@@ -5,9 +5,13 @@ using LLaMA 3 via Groq's fast inference API.
 """
 
 from groq import Groq
+from dotenv import load_dotenv
+load_dotenv()
 
 # ── Replace with your real Groq API key ───────────────────────────────────
-GROQ_API_KEY = "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"
+import os
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 client = Groq(api_key=GROQ_API_KEY)
 
