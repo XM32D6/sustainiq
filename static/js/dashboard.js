@@ -551,6 +551,140 @@ function renderPrediction(pred) {
 }
 
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  CHATBOT
+// ═══════════════════════════════════════════════════════════════════════════
+
+let chatHistory = [];   // stores conversation for multi-turn context
+let chatOpen    = false;
+
+function initChatbot() {
+  const toggle   = document.getElementById('chatToggle');
+  const window_  = document.getElementById('chatWindow');
+  const closeBtn = document.getElementById('chatClose');
+  const sendBtn  = document.getElementById('chatSend');
+  const input    = document.getElementById('chatInput');
+  const badge    = document.getElementById('chatBadge');
+
+  // Show badge on load to draw attention
+  setTimeout(() => { badge.style.display = 'flex'; }, 3000);
+
+  // Toggle chat window
+  toggle.addEventListener('click', () => {
+    chatOpen = !chatOpen;
+    window_.classList.toggle('open', chatOpen);
+    badge.style.display = 'none';
+    if (chatOpen) input.focus();
+  });
+
+  closeBtn.addEventListener('click', () => {
+    chatOpen = false;
+    window_.classList.remove('open');
+  });
+
+  // Send on button click
+  sendBtn.addEventListener('click', sendMessage);
+
+  // Send on Enter key
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+}
+
+
+function sendSuggestion(btn) {
+  /** Called by quick-suggestion buttons */
+  const text = btn.textContent.replace(/^[^\w]+/, '').trim();
+  document.getElementById('chatInput').value = text;
+  sendMessage();
+}
+
+
+async function sendMessage() {
+  const input   = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+  const question = input.value.trim();
+
+  if (!question) return;
+
+  // ── Append user message ──────────────────────────────────────────────
+  appendMessage('user', question);
+  input.value = '';
+  sendBtn.disabled = true;
+
+  // ── Typing indicator ─────────────────────────────────────────────────
+  const typingId = appendMessage('typing', '⏳ Thinking…');
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question,
+        filename: FILENAME,
+        history:  chatHistory,
+      }),
+    });
+
+    const data = await res.json();
+
+    // Remove typing indicator
+    removeMessage(typingId);
+
+    if (data.error) {
+      appendMessage('bot', `⚠️ Error: ${data.error}`);
+      return;
+    }
+
+    // ── Append bot response ────────────────────────────────────────────
+    appendMessage('bot', data.answer);
+
+    // ── Update history for multi-turn ─────────────────────────────────
+    chatHistory.push({ role: 'user',      content: question     });
+    chatHistory.push({ role: 'assistant', content: data.answer  });
+
+    // Keep history to last 10 messages
+    if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+
+  } catch (err) {
+    removeMessage(typingId);
+    appendMessage('bot', '⚠️ Could not reach the AI assistant. Make sure Flask is running and your Groq API key is set.');
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+
+let msgCounter = 0;
+
+function appendMessage(role, text) {
+  /** Adds a message bubble to the chat window. Returns unique ID. */
+  const messages = document.getElementById('chatMessages');
+  const id = `msg-${++msgCounter}`;
+
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  div.id = id;
+  div.textContent = text;
+
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return id;
+}
+
+
+function removeMessage(id) {
+  /** Removes a message bubble by ID (used for typing indicator). */
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+
 // ── Kick off ──────────────────────────────────────────────────────────────
 loadDashboard();
 loadAIDashboard();
+initChatbot();

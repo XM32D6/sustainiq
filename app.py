@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import pandas as pd
 from werkzeug.utils import secure_filename
 from ai_analysis import run_ai_analysis
+from chatbot import ask_chatbot
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -246,6 +247,38 @@ def ai_insights():
     try:
         data = run_ai_analysis(filepath, score)
         return jsonify(data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """
+    Chatbot endpoint.
+    Receives user question + filename + chat history.
+    Returns AI-generated response.
+    """
+    data     = request.get_json()
+    question = data.get('question', '').strip()
+    filename = data.get('filename', '')
+    history  = data.get('history', [])
+
+    if not question:
+        return jsonify({'error': 'No question provided'}), 400
+
+    if not filename:
+        return jsonify({'error': 'No filename provided'}), 400
+
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filename))
+    if not os.path.exists(filepath):
+        return jsonify({'error': 'Dataset not found'}), 404
+
+    try:
+        # Load both base analytics and AI analysis as context
+        base_data = process_dataset(filepath)
+        ai_data   = run_ai_analysis(filepath, base_data.get('sustainability_score', 70))
+        answer    = ask_chatbot(question, ai_data, base_data, history)
+        return jsonify({'answer': answer})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

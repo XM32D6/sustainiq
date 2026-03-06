@@ -550,6 +550,198 @@
       .ai-anomaly-grid { grid-template-columns: 1fr; }
       .rec-grid        { grid-template-columns: 1fr; }
     }
+    /* ═══════════════════════════════════════
+       CHATBOT
+    ═══════════════════════════════════════ */
+    .chat-toggle {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent), #00b4d8);
+      border: none; border-radius: 50%;
+      cursor: pointer; z-index: 200;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 20px rgba(0,229,192,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .chat-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 28px rgba(0,229,192,0.6);
+    }
+
+    .chat-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.6rem; font-weight: 700;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      display: none;
+    }
+
+    .chat-window {
+      position: fixed;
+      bottom: 6rem; right: 2rem;
+      width: 360px;
+      height: 500px;
+      background: #0b1e2d;
+      border: 1px solid rgba(0,229,192,0.2);
+      border-radius: 16px;
+      display: flex; flex-direction: column;
+      z-index: 200;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      overflow: hidden;
+      transform: scale(0.95) translateY(10px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+    .chat-window.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .chat-header {
+      padding: 1rem 1.2rem;
+      background: rgba(0,229,192,0.08);
+      border-bottom: 1px solid rgba(0,229,192,0.15);
+      display: flex; align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-header-info { display: flex; align-items: center; gap: 10px; }
+
+    .chat-avatar {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--accent), #00b4d8);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .chat-header-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem; font-weight: 700;
+    }
+
+    .chat-header-status {
+      font-size: 0.7rem; color: var(--accent);
+    }
+
+    .chat-close {
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      font-size: 1.1rem;
+      transition: color 0.2s;
+    }
+
+    .chat-close:hover { color: var(--white); }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex; flex-direction: column; gap: 0.8rem;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .chat-msg {
+      max-width: 85%;
+      padding: 0.65rem 0.9rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .chat-msg.user {
+      background: rgba(30,95,196,0.3);
+      border: 1px solid rgba(30,95,196,0.4);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .chat-msg.bot {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      color: rgba(255,255,255,0.85);
+      white-space: pre-wrap;
+    }
+
+    .chat-msg.typing {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      align-self: flex-start;
+      color: var(--muted);
+    }
+
+    .chat-suggestions {
+      padding: 0.5rem 1rem;
+      display: flex; flex-wrap: wrap; gap: 6px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .suggestion-btn {
+      background: rgba(0,229,192,0.07);
+      border: 1px solid rgba(0,229,192,0.2);
+      color: var(--accent);
+      font-size: 0.68rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .suggestion-btn:hover { background: rgba(0,229,192,0.15); }
+
+    .chat-input-row {
+      padding: 0.8rem 1rem;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; gap: 8px;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--white);
+      font-size: 0.8rem;
+      padding: 0.5rem 0.8rem;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: rgba(0,229,192,0.4); }
+    .chat-input::placeholder { color: var(--muted); }
+
+    .chat-send {
+      background: linear-gradient(135deg, var(--accent), #00b4d8);
+      border: none; border-radius: 8px;
+      color: var(--navy);
+      font-size: 0.9rem;
+      width: 36px; height: 36px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+
+    .chat-send:hover { opacity: 0.85; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -764,7 +956,58 @@
   </main>
 </div>
 
-<!-- Pass filename from Flask template variable -->
+<!-- ════ CHATBOT ════ -->
+
+<!-- Floating Toggle Button -->
+<button class="chat-toggle" id="chatToggle" title="Ask AI Assistant">
+  🤖
+  <span class="chat-badge" id="chatBadge">1</span>
+</button>
+
+<!-- Chat Window -->
+<div class="chat-window" id="chatWindow">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar">🌱</div>
+      <div>
+        <div class="chat-header-name">SustainIQ Assistant</div>
+        <div class="chat-header-status">● Online — powered by Groq</div>
+      </div>
+    </div>
+    <button class="chat-close" id="chatClose">✕</button>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg bot">
+      👋 Hi! I'm your AI sustainability assistant. I've analysed your dataset and I'm ready to answer questions about energy, water, waste, anomalies, and recommendations.<br><br>What would you like to know?
+    </div>
+  </div>
+
+  <!-- Quick Suggestion Buttons -->
+  <div class="chat-suggestions">
+    <button class="suggestion-btn" onclick="sendSuggestion(this)">⚡ Energy spikes?</button>
+    <button class="suggestion-btn" onclick="sendSuggestion(this)">🏭 Top department?</button>
+    <button class="suggestion-btn" onclick="sendSuggestion(this)">🔮 Future usage?</button>
+    <button class="suggestion-btn" onclick="sendSuggestion(this)">💡 Recommendations?</button>
+  </div>
+
+  <!-- Input Row -->
+  <div class="chat-input-row">
+    <input
+      type="text"
+      class="chat-input"
+      id="chatInput"
+      placeholder="Ask about your sustainability data…"
+      maxlength="300"
+    />
+    <button class="chat-send" id="chatSend">➤</button>
+  </div>
+
+</div>
+
 <script>
   const FILENAME = "{{ filename }}";
 </script>
